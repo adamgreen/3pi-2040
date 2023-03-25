@@ -1,0 +1,2 @@
+#! /usr/bin/env bash
+rshell -p /dev/tty.usbmodem1101 --buffer-size 512 rsync micropython/ /pyboard/

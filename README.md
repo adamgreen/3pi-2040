@@ -16,6 +16,37 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## March 24th, 2023
+### Pololu's 3pi+ 2040 MicroPython Library
+I spent some time earlier this week looking at the [MicroPython libraries and samples provided by Pololu up on GitHub](https://github.com/pololu/pololu-3pi-2040-robot). I saw some interesting features of note while looking at Pololu's MicroPython code:
+* They use PIO to read the wheel's quadrature decoders in the background like I did with [my encoder library](https://github.com/adamgreen/QuadratureDecoder).
+* They use PIO to use RC (resistor capacitor) discharge times to read the analog sensor values for the 5 downward facing line sensors and the 2 front bumper switches.
+* Display driver is optimized to only need to send over pages that have been dirtied in the frame buffer since the last time it was copied to the device over SPI.
+* Buzzer library takes a string of notes to be played in the background while the robot is doing other things. The string used reminds me of the GW-BASIC ```PLAY``` command from my youth.
+
+After looking through the Pololu code I now have a much better idea of how to write my own MicroPython code for the robot.
+
+### Reading Assignment
+![My Mobile Robotics Book](https://raw.githubusercontent.com/adamgreen/Ferdinand20/master/photos/20210914-01.jpg)
+
+I have decided that one of my first 3pi+ projects will be to write a behavior based program in MicroPython. With that in mind I have gone back and reread the software sections of ["Mobile Robots: Inspiration to Implementation" by Joseph L. Jones and Anita M. Flynn](https://www.amazon.com/Mobile-Robots-Inspiration-Implementation-Second/dp/B0087P7X2S). The 3pi+ doesn't have the same sensors as the RugRover bot covered by this book but I think I can still make an interesting port of their sample program from Appendix B none the less.
+
+### MicroPython Development Setup
+Rather than using a Python specific IDE like [Thonny](https://thonny.org) or [Mu](https://codewith.mu), I decided to use [Visual Studio Code](https://code.visualstudio.com) for editing my MicroPython based robot code and [Dave Hyland's rshell utility](https://github.com/dhylands/rshell) for deploying it over to the 3pi+ 2040 robot. I even created a [deploy script](deploy) to make this process even easier. The contents of that script are simply:
+```shell
+#! /usr/bin/env bash
+rshell -p /dev/tty.usbmodem1101 --buffer-size 512 rsync micropython/ /pyboard/
+```
+It uses the ```rsync``` command to find the python scripts which I have updated on my machine and automatically copies them over to the robot.
+
+### First MicroPython Tests
+I wrote my first 2 little MicroPython test programs for the 3pi+ 2040 to get better acquainted with the library that Pololu has put together:
+* [bump_test.py](micropython/bump_test.py): This test program continuously shows the analog readings from the 2 front bumpers. It can be used to see ambient lighting effects on light sensors used as part of the bumper setup on the 3pi+ 2040 robot. I was wondering if these front facing light sensors would be sensitive enough to ambient lighting to implement a **Follow** behavior as described in the [Mobile Robots](https://www.amazon.com/Mobile-Robots-Inspiration-Implementation-Second/dp/B0087P7X2S) book. After running this test program on my bot it does look like the sensor measurements do change based on the amount of ambient light but not by very much and certainly not with enough disparity between the two sensors to determine the direction of the light source. No **Follow** behavior for me.
+* [motion_test.py](micropython/motion_test.py): This test program runs both motors at 100% power in the forward direction to observe the maximum encoder ticks per second rate. When running this test on the actual robot, I saw the maximum rate was always over 5000 encoder ticks per second. Such rates were seen when the robot was lifted up off the ground and when it was down running on carpeted flooring. **5000 ticks/second** will therefore be the maximum velocity allowed by any PID code that I write in the future.
+
+
+
+---
 ## March 15th, 2023
 ### Notching for Debug Header
 ![Debug header notch added to chassis](images/20230315-01.jpg)
@@ -68,7 +99,7 @@ Once I completed the assembly of the robot I booted it up and ran through the Mi
 ### Next Steps
 * ~~I installed a 1x6 female 0.1" header on the debug port while soldering parts down to the control board. Unfortunately I didn't have low-profile headers like Pololu used for the included OLED and this resulted in the header not fitting underneath the top edge of the plastic bumper skirt. I will need to cut a notch in the top of this skirt to make room for my taller header and allow the skirt to properly clip down around the right motor.~~<br>
 ![Close up of debug header](images/20230314-13.jpg)
-* Explore the MicroPython support on the robot a bit more and try writing some code to have it bounce around and explore its new home.
+* ~~Explore the MicroPython support on the robot a bit more and try writing some code to have it bounce around and explore its new home.~~
 * Dream up additional future projects for this cool little bot.
 
 
