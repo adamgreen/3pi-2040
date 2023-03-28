@@ -16,6 +16,26 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## March 27th, 2023
+### Behavior Based Robot Code in MicroPython
+![Robot running Cruise and Escape Behaviors](images/20230327-03.gif)
+
+Now that I am more comfortable with using [Pololu's MicroPython library](https://github.com/pololu/pololu-3pi-2040-robot/tree/master/micropython_demo) for programming the 3pi+ 2040 robot, I decided I would take the plunge and port some of the behavior based robot code from ["Mobile Robots: Inspiration to Implementation" by Joseph L. Jones and Anita M. Flynn](https://www.amazon.com/Mobile-Robots-Inspiration-Implementation-Second/dp/B0087P7X2S). I ended up porting the **Cruise** and **Escape** behaviors but I had to skip the **Follow** and **Avoid** behaviors since the 3pi+ robot doesn't have photoresistor or IR proximity sensors. The RugWarrior code from the book was written in IC (Interactive C) which supports multiple processes (threads) for running the various behaviors at the same time. For my MicroPython code I ended up implementing the behaviors as state machines and updating them at regular intervals (50Hz). The state machine doesn't really need to do anything for the **Cruise** behavior since it just wants to keep driving forward at a slow rate. The **Escape** state machine is a bit more complicated as this is a ballistic behavior which takes control for some time while it backs the robot up and then executes the needed turn.
+
+![Running Cruise](images/20230327-01.jpg)
+![Running Escape](images/20230327-02.jpg)
+
+The code for my MicroPython port can be found in [behave.py](micropython/behave.py). I have to ask the forgiveness of any experienced Python programmers who read my MicroPython code. I have very little Python experience and its shows in my code.
+
+Having access to MiroPython on the 3pi+ 2040 robot and the MicroPython code provided by Pololu made it quite simple for me to get up and running on this robot. It was easy to find sample code that did close to what I wanted and then start modifying from there. It was also straightforward to get new code on the device (through the USB mass storage drive exposed from the robot or using [rshell/rsync](https://github.com/dhylands/rshell)).
+
+### Next Steps
+* Investigate what it would take to use [Arduino's RP2040 port](https://github.com/arduino/ArduinoCore-mbed) with the 3pi+ robot.
+* Connect my [Segger J-Link debug adapter](https://www.adafruit.com/product/3571) up to my 3pi+ robot to enable programming and debugging of Arduino C/C++ code on the bot.
+
+
+
+---
 ## March 24th, 2023
 ### Pololu's 3pi+ 2040 MicroPython Library
 I spent some time earlier this week looking at the [MicroPython libraries and samples provided by Pololu up on GitHub](https://github.com/pololu/pololu-3pi-2040-robot). I saw some interesting features of note while looking at Pololu's MicroPython code:
@@ -100,7 +120,7 @@ Once I completed the assembly of the robot I booted it up and ran through the Mi
 * ~~I installed a 1x6 female 0.1" header on the debug port while soldering parts down to the control board. Unfortunately I didn't have low-profile headers like Pololu used for the included OLED and this resulted in the header not fitting underneath the top edge of the plastic bumper skirt. I will need to cut a notch in the top of this skirt to make room for my taller header and allow the skirt to properly clip down around the right motor.~~<br>
 ![Close up of debug header](images/20230314-13.jpg)
 * ~~Explore the MicroPython support on the robot a bit more and try writing some code to have it bounce around and explore its new home.~~
-* Dream up additional future projects for this cool little bot.
+* ~~Dream up additional future projects for this cool little bot.~~
 
 
 
@@ -126,7 +146,7 @@ If anyone at Pololu ever happens to read the dribble I post here then this secti
   * The RP2040 is a very cool microcontroller and really nice to see it now available on the 3pi+ series of Pololu robots.
   * One advantage of using the RP2040 over the AVR is the ability to run MicroPython on the robot. I think this will make the 3pi+ series of robots accessible to even more robot builders/programmers.
 * Would be good if the [Pololu 3pi+ 2040 User’s Guide](https://www.pololu.com/docs/0J86) noted its last update date/time somewhere since it is currently under construction. This would allow early adopters know if and when we should go back and read any new content and/or updates made since the last time we read it.
-* In section 1.1 of the [User’s Guide](https://www.pololu.com/docs/0J86) it contains the following part description, "two 1/4″ #2-56 standoffs <u>(OLED version only)</U>". The OLED note in parenthesis isn't required as the 3pi+ 2040 only ships with the OLED.
+* ~~In section 1.1 of the [User’s Guide](https://www.pololu.com/docs/0J86) it contains the following part description, "two 1/4″ #2-56 standoffs <u>(OLED version only)</U>". The OLED note in parenthesis isn't required as the 3pi+ 2040 only ships with the OLED.~~ *Fixed as of March 25, 2023.*
 * The debug port is too close to the edge of the bumper skirt. It is difficult to fit the header and any required cabling without notching the skirt. That said it isn't too hard for the user to make this notch themselves.
 * The buttons on the 3pi+ 2040 control board are awfully small and can be tricky to press.
 * If you don't solder on headers for the expansion ports while building up the kit, it would be tricky to do it later as this will require desoldering the motor and battery connections so that the bottom battery compartment can be removed from the PCB.
