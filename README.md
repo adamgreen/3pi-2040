@@ -16,6 +16,94 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## March 31st, 2023
+### Arduino & 3pi+ 2040
+![Arduino Mbed OS RP2040 Library](images/20230330-01.png)
+
+The latest Arduino IDE already ships with a board package that is compatible with the 3pi+ 2040: **Arduino Mbed OS RP2040 Boards**. The circuit of the 3pi+ 2040 PCB is close enough to the Raspberry Pi Pico that it just worked:
+* The **W25Q128JVP**  16MB flash part used on the 3pi+ 2040 PCB seems to be similar enough to the **W25Q16JVUXIQ** 2MB flash part used on the Pico that the second stage bootloader linked into Arduino binaries just work. *If someone knows that I should be using a different second stage bootloader with this device, please let me know.*
+* The yellow LED on the 3pi+ 2040 is even connected to the same pin as the user LED on the Pico, **Pin 25**. This means that the stock **Blink** Arduino example just worked on the 3pi+ 2040 as well.
+
+
+### Uploading Code from Arduino IDE to 3pi+ 2040
+The Arduino IDE was able to successfully upload new code to the 3pi+ 2040 over the same USB connection as used for MicroPython programming. There are 2 ways that the Arduino IDE can upload code to the RP2040 microcontroller using the USB cable:
+* Once you have Arduino code up and running on your RP2040, the IDE can use USB to make a serial connection to the device. This means that `Serial.print()` calls in your code will show up in Arduino's *Serial Monitor*. Arduino can use this same USB serial connection to place the RP2040 into bootloader mode automatically. The user just needs to select the **Sketch/Upload** option in the Arduino IDE and it will build and deploy the code to your 3pi+ 2040 robot with no manual intervention from you. The image below shows the 3pi+ 2040 robot showing up as a **Rasperry Pi Pico** on the **dev/cu.usbmodem1101** virtual serial port when connected to my Mac.
+![Selecting 3pi+ 2040 in Arduino IDE](images/20230330-02.png)
+* The previous automatic upload process doesn't always work though. If the Arduino USB serial driver isn't successfully running on your 3pi+ 2040 then you will need to place the RP2040 into bootloader mode manually before starting the upload process in Arduino.All you need to do is hold down the **B Button** while cycling the **Reset Button**. This will force the RP2040 into bootloader mode where it shows up on your PC as a **RPI-RP2** drive. Once this special drive shows up on your PC, you can just select the **Sketch/Upload** option in the Arduino IDE as usual. When is this slightly more manual process required?
+  * If your 3pi+ 2040 robot is currently running MicroPython. The Arduino USB serial driver isn't running on your bot so it can't be used. **Note:** *Switching to Arduino code from MicroPython will delete your custom MicroPython programs from the 3pi+ 2040. Make backup copies of your MicroPython code before uploading Arduino code to the robot.*
+  * If your Arduino robot code hangs so bad that the Arduino USB serial driver can't run on the robot.
+
+If you want to switch back to MicroPython after experimenting with Arduino on your 3pi+ 2040 then you can follow the steps in the [Pololu 3pi+2 2040 User's Guide](https://www.pololu.com/docs/0J86/5.1) to reupload the MicroPython firmware.
+
+### Porting the Pololu3piPlus32U4 Arduino Library
+![Bump Sensor Arduino Demo running on bot](images/20230330-05.jpg)
+
+Once I knew that Arduino was going to be relatively easy to use with the 3pi+ 2040, I turned my attention to [Pololu's existing Arduino Library for the ATmega32U4 based 3pi+](https://github.com/pololu/pololu-3pi-plus-32u4-arduino-library). What would it take to start porting this library to run on the 2040 based board instead? It turns out not much and quite a bit at the same time. A lot of the functionality that you would want to expose from a library is the same between the two versions. The biggest obstacle was AVR specific code that was written for the library to get the most performance possible on the 32U4 based board:
+* The FastGPIO library is used a lot in the 32U4 library. I replaced this with a RP2040SIO library instead. It takes the methods exposed by Pololu's FastGPIO library and implements them using the RP2040's fast SIO registers instead.
+* I came across several places in the 32U4 code which contained inline AVR assembly language. I removed this code and replaced it with corresponding C/C++ code which is probably fast enough on a 125MHz 32-bit ARM Cortex-M0 core.
+* The OLED driver was written to use the FastGPIO library and bit twiddling to implement the required SPI protocol rather than the SPI peripheral itself. I created a RP2040SPI library that exposes a SharedSPI class. This SharedSPI class makes use of the SPI peripheral on the RP2040 but is able to switch the SCLK and baud rates on the fly when switching between sending data to the OLED and the addressable RGB LEDs. This is functionality I stole from Pololu's 3pi+ 2040 MicroPython library as it does the same.
+* The buzzer code was tied very tightly to the Timer hardware on the AVR. In my RP2040 port, I just used the existing **mbed::Timeout** and **mbed::PWM** C++ objects available from the Arduino mbed core for ARM microcontrollers.
+
+Other changes I made as part of the port so far:
+* I modified some of the samples to make use of the addressable LEDs since the RP2040 version of the 3pi+ doesn't have the red and green LEDs of the 32U4 version but it does have six addressable LEDs instead.
+* I rewrote the light sensor reading code to use the really cool PIO (Programmable I/O) peripheral on the RP2040 as used by Pololu's MicroPython driver as well. I actually ported Pololu's PIO code and integrated it into a C++ based driver. I did track down a bug in the MicroPython driver and fixed it while working on this port:
+  * Originally the Pololu code would have the PIO code start the charging phase at the end of the previous read.
+  * The CPU was responsible for kicking off the next read by the PIO.
+  * The PIO would then start the discharge phase and start timing the discharge for each light sensor pin.
+  * Depending on what the CPU was used to do after the previous read completed and before starting the next read, the capacitors may have ended up with a different level of charge and this would impact the time it took to discharge.
+  * The PIO code should be responsible for the timing of the charging phase as well the discharging phase or the readings can be inconsistent.
+* The Arduino IDE isn't able to assemble PIO assembly language sources. I have checked in the **.pio** source code and the **.pio.h** header files generated by **pioasm**. This way the pre-assembled output can be used by the Arduino process while the originals are still available in the tree as well. I have a Makefile in the `pio\` folder which can be used to install the Pico C SDK and assemble the PIO assembly language source files. This may only work on macOS though.
+
+At this point I only have a portion of the library ported but I thought I would commit what I have so far to my [3pi+ 2040 Arduino Library GitHub Repository](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library) so that I can share my current progress and solicit some feedback.
+
+**Features/Examples that have been ported so far:**
+* Only 2 examples have been ported so far: **BlinkLEDs** and **BumpSensorTest**.
+* **OLED Display** driver.
+* LED driver. This includes the **Yellow LED** shared with the 32U4 version and the 6 addressable **RGB LEDs** that are new for the 2040 version.
+* **Bump Sensor** driver.
+* **Buzzer** driver.
+
+**Features to be ported in the near future:**
+* **Buttons**
+* **Encoders** - Will use PIO for the RP2040 port like Pololu did in their MicroPython library.
+* **IMU**
+* **Line Sensors** - Most of the work for this has already been done for the PIO based bump sensor driver.
+* **Motors**
+
+I also created a [PR in the Pololu 3pi+ 2040 repository](https://github.com/pololu/pololu-3pi-2040-robot/pull/1) with my proposed change to the PIO code for the QTR read path.
+
+
+### Debugging the 3pi+ with Segger J-Link
+![3pi+ 2040 connected to J-Link](images/20230330-03.jpg)
+
+I didn't get that far into the Arduino library porting before I hit an issue that I really wanted to debug. I have a wireless debugging solution as a future project in mind for the 3pi+ 2040 but that is the future and I had some debugging that I wanted to do right now. Time to pull out my trusty [Segger J-Link Debugger](https://www.adafruit.com/product/1369) and wire it up to my robot. I had previously soldered a 1x6 0.1" header onto the 3pi+'s debug port while putting the kit together. I just needed to use 5 male to male Dupont wires to connect up the necessary signals between the robot and the debug adapter. The end product wasn't pretty but it worked. My drawing below might make the required wiring a bit clearer.
+
+![Drawing of JLink Connections](images/20230330-04.png)<br>
+**Image Portion Credits:**
+* [3pi+ Pinout from Pololu's 3pi+ 2040 Control Board Pinout and Peripherals](https://www.pololu.com/file/0J1941/3pi-2040-control-board-pinout.pdf)
+* [Legacy JTAG Pinout from ARM's Cortex-M Debug Connectors](https://documentation-service.arm.com/static/5fce6c49e167456a35b36af1)
+
+
+The command line I used to start the Segger J-Link GDBServer up on my MacBook Air for debugging the RP2040 microcontroller on the robot:
+```console
+JLinkGDBServer -device RP2040_M0_0 -nohalt -endian little -if SWD -speed 12000 -localhostonly
+```
+
+The comand line I use to launch GDB to connect to the J-Link GDBServer and debug the Arduino built binary:
+```console
+arm-none-eabi-gdb -ex "set target-charset ASCII" -ex "set print pretty on" -ex "target remote :2331" -ex "set mem inaccessible-by-default off" *.ino.elf
+```
+I run the above command line in the build output directory used by the Arduino build IDE. This directory can be found in the Arduino Output window after a build if the "Show verbose output during:" "compile" box has been checked.
+
+The version of the Segger J-Link debugger that I used is no longer sold by Adafruit but you can still buy the [SEGGER J-Link EDU Mini - JTAG/SWD Debugger](https://www.adafruit.com/product/3571) and it works just as well. *It must be noted that these EDU versions are to be used for **non-commercial** purposes only.*
+
+### Next Steps
+* Finish my [3pi+ 2040 Arduino Library port](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library).
+* Use KiCAD to design a PCB that adapts the 3pi+ 2040 debug port to ARM's standard 10-pin SWD connector. This will allow me to get rid of my current cabling hack.
+
+
+
+---
 ## March 27th, 2023
 ### Behavior Based Robot Code in MicroPython
 ![Robot running Cruise and Escape Behaviors](images/20230327-03.gif)
@@ -30,8 +118,8 @@ The code for my MicroPython port can be found in [behave.py](micropython/behave.
 Having access to MiroPython on the 3pi+ 2040 robot and the MicroPython code provided by Pololu made it quite simple for me to get up and running on this robot. It was easy to find sample code that did close to what I wanted and then start modifying from there. It was also straightforward to get new code on the device (through the USB mass storage drive exposed from the robot or using [rshell/rsync](https://github.com/dhylands/rshell)).
 
 ### Next Steps
-* Investigate what it would take to use [Arduino's RP2040 port](https://github.com/arduino/ArduinoCore-mbed) with the 3pi+ robot.
-* Connect my [Segger J-Link debug adapter](https://www.adafruit.com/product/3571) up to my 3pi+ robot to enable programming and debugging of Arduino C/C++ code on the bot.
+* ~~Investigate what it would take to use [Arduino's RP2040 port](https://github.com/arduino/ArduinoCore-mbed) with the 3pi+ robot.~~
+* ~~Connect my [Segger J-Link debug adapter](https://www.adafruit.com/product/3571) up to my 3pi+ robot to enable programming and debugging of Arduino C/C++ code on the bot.~~
 
 
 
