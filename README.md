@@ -5,6 +5,7 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 ## Notable Page Sections
 * [Using Arduino with the 3pi+ 2040](#arduino--3pi-2040)
+* [My 3pi+ 2040 Arduino Library](#pololu3piplus2040-arduino-library-port-completed)
 * [Debugging 3pi+ 2040 with the Segger J-Link](#debugging-the-3pi-with-segger-j-link)
 * [My Notes for Pololu](#my-notes-for-pololu)
 
