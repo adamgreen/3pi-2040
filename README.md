@@ -18,6 +18,37 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## April 5th, 2023
+### Pololu3piPlus2040 Arduino Library Port Completed
+![Running compass example](images/20230405-01.gif)
+
+I have completed the initial port of my [3pi+ 2040 Arduino Library](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library). All of the features of the 3pi+ 2040 are now supported by the library and test out well on my bot.
+
+**Features that I completed since my last update here:**
+* **Buttons** - Had to take into account that all of the button pins do double duty so code had to be written to carefully multiplex between these pin roles.
+* **Encoders** - Used PIO for the RP2040 port like Pololu did in their MicroPython library. Rather than port the PIO code from the MicroPython library, I just used my existing [QuadratureDecoder code](https://github.com/adamgreen/quadraturedecoder)
+* **IMU** - The Gyro/Accelerometer used on the 3pi+ 2040 has a different part number than the 3pi+ 32U4 but the only difference I found was the response to the I2C WHO_AM_I request.
+* **Line Sensors** - Most of the work for this was already done for the PIO based bump sensor driver.
+* **Motors**
+
+The list of supported classes now includes:
+* Pololu3piPlus2040::ButtonA
+* Pololu3piPlus2040::ButtonB
+* Pololu3piPlus2040::ButtonC
+* Pololu3piPlus2040::Buzzer
+* Pololu3piPlus2040::Encoders
+* Pololu3piPlus2040::OLED
+* Pololu3piPlus2040::Motors
+* Pololu3piPlus2040::LineSensors
+* Pololu3piPlus2040::BumpSensors
+* Pololu3piPlus2040::IMU
+* Pololu3piPlus2040::RGBLEDs
+* Pololu3piPlus2040::ledYellow()
+* Pololu3piPlus2040::readBatteryMillivolts()
+
+
+
+---
 ## March 31st, 2023
 ### Arduino & 3pi+ 2040
 ![Arduino Mbed OS RP2040 Library](images/20230330-01.png)
@@ -100,7 +131,7 @@ I run the above command line in the build output directory used by the Arduino b
 The version of the Segger J-Link debugger that I used is no longer sold by Adafruit but you can still buy the [SEGGER J-Link EDU Mini - JTAG/SWD Debugger](https://www.adafruit.com/product/3571) and it works just as well. *It must be noted that these EDU versions are to be used for **non-commercial** purposes only.*
 
 ### Next Steps
-* Finish my [3pi+ 2040 Arduino Library port](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library).
+* ~~Finish my [3pi+ 2040 Arduino Library port](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library).~~
 * Use KiCAD to design a PCB that adapts the 3pi+ 2040 debug port to ARM's standard 10-pin SWD connector. This will allow me to get rid of my current cabling hack.
 
 
