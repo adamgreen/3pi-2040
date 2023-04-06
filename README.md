@@ -19,6 +19,26 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## April 6th 2023
+### Debug Port Adapter
+![3pi+ 2040 connected to J-Link](images/20230330-03.jpg)
+
+My current method of connecting the J-Link debugger to my 3pi+ 2040 is a bit hacky with taped together Dupont wires. Can I make something a bit better?
+
+![PCB Render from OSHPark](images/20230406-01.png)
+
+My answer to that question was to design an [adapter PCB in KiCAD](hardware/DebugPortAdapter/) that makes the J-Link connection easier:
+* Adapts the 6-pin debug header included by Pololu on the 3pi+ 2040 to the more standard 2x5 pin SWD debug connector.
+* This PCB will obscure the green power LED currently on the robot so I have included a LED that lights up when the 3.3V pin on th header is powered up.
+* This PCB also makes it even more difficult to reach the reset button on the robot so I have included a reset button as well.
+* I plan to design a part to be 3D printed and glued to the back of this PCB to add some support behind the SWD connector and the reset button.
+* The design has been sent off to [OSHPark](https://oshpark.com). I will post again once the PCB arrives and I have it soldered up.
+
+![Image of schematic](images/20230406-02.png)
+
+
+
+---
 ## April 5th, 2023
 ### Pololu3piPlus2040 Arduino Library Port Completed
 ![Running compass example](images/20230405-01.gif)
@@ -133,7 +153,7 @@ The version of the Segger J-Link debugger that I used is no longer sold by Adafr
 
 ### Next Steps
 * ~~Finish my [3pi+ 2040 Arduino Library port](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library).~~
-* Use KiCAD to design a PCB that adapts the 3pi+ 2040 debug port to ARM's standard 10-pin SWD connector. This will allow me to get rid of my current cabling hack.
+* ~~Use KiCAD to design a PCB that adapts the 3pi+ 2040 debug port to ARM's standard 10-pin SWD connector. This will allow me to get rid of my current cabling hack.~~
 
 
 
@@ -270,5 +290,5 @@ If anyone at Pololu ever happens to read the dribble I post here then this secti
 * Would be good if the [Pololu 3pi+ 2040 User’s Guide](https://www.pololu.com/docs/0J86) noted its last update date/time somewhere since it is currently under construction. This would allow early adopters know if and when we should go back and read any new content and/or updates made since the last time we read it.
 * ~~In section 1.1 of the [User’s Guide](https://www.pololu.com/docs/0J86) it contains the following part description, "two 1/4″ #2-56 standoffs <u>(OLED version only)</U>". The OLED note in parenthesis isn't required as the 3pi+ 2040 only ships with the OLED.~~ *Fixed as of March 25, 2023.*
 * The debug port is too close to the edge of the bumper skirt. It is difficult to fit the header and any required cabling without notching the skirt. That said it isn't too hard for the user to make this notch themselves.
-* The buttons on the 3pi+ 2040 control board are awfully small and can be tricky to press.
-* If you don't solder on headers for the expansion ports while building up the kit, it would be tricky to do it later as this will require desoldering the motor and battery connections so that the bottom battery compartment can be removed from the PCB.
+* The buttons on the 3pi+ 2040 control board are awfully small and can be tricky to press, especially the reset button.
+* ~~If you don't solder on headers for the expansion ports while building up the kit, it would be tricky to do it later as this will require desoldering the motor and battery connections so that the bottom battery compartment can be removed from the PCB.~~

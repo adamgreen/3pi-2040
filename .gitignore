@@ -21,3 +21,10 @@ fp-info-cache
 
 # Python environment I use for things like rshell when working with this project.
 /python_env/
+
+# Temporary KiCad files.
+*.kicad_prl
+fp-info-cache
+**/gerbers/
+**/*-backups/
+**/_autosave-*
