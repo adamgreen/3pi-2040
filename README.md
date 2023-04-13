@@ -19,6 +19,33 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## April 12th, 2023
+### Pololu3piPlus2040 Arduino Library Updated to 0.1.2
+Over the last week, I have released another 2 updates to the [3π+ 2040 Arduino Library](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library). These updates include the following changes:
+* 0.1.2 (2023-4-8): Third alpha release from community with a few updates:
+  * Moved `Pololu3piPlus2040::BumpSensors::BumpSide` up in namespace to `Pololu3piPlus2040::BumpSide`.
+  * Simplify `LineSensors` API to remove `sensorValues` out parameter.
+  * Added `RGBLEDs::get()` and `RGBLEDs::getBrightness()` methods to match recent MicroPython library updates.
+  * Simplified and fixed a few bugs in my C implementation of the `RGBLEDs::hsv2rgb()` method.
+  * Fix buzzer click upon device reset.
+  * Fixes to `BumpSensors` class constructor and documentation for `read()` method.
+* 0.1.1 (2023-4-4): Second alpha release from community with Motor & Buzzer PWM fixes.
+
+### Start of Pololu3piPlus2040 Arduino Library version 0.2.x
+I have started working on a [0.2.x branch](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library/tree/v0.2.x) of the 3π+ 2040 Arduino Library. This branch is an attempt to start leveraging [Pololu's Pico-SDK based C library for the 3π+ 2040 robot](https://github.com/pololu/pololu-3pi-2040-robot/tree/master/c). This should allow the Arduino Library to just become a lightweight C++ inline wrapper around this C API developed by Pololu.
+
+### My 3π+ 2040 Bot has a Littermate
+![My 3π+ 2040 with littermate](images/20230412-01.jpg)<br>
+I received a second [3π+ 2040 Robot Kit](https://www.pololu.com/product/5004) today. This kit was purchased with the early adopters discount from Pololu described below in a quote from the 3π+ 2040 product page:
+
+>Early adopters who publicly share their 3pi+ 2040 experiences will be eligible for an additional robot with an extra $25 discount.
+
+### Next Steps
+* Attempt to design a wireless debugging/programming solution for the 3π+ 2040 robot.
+
+
+
+---
 ## April 6th 2023
 ### Debug Port Adapter
 ![3pi+ 2040 connected to J-Link](images/20230330-03.jpg)
