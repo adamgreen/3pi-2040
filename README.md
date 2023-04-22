@@ -19,6 +19,17 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## April 22nd, 2023
+![3π+ 2040 w/ new debug port adapter](images/20230421-01.jpg)
+
+I received the PCBs from [OSHPark](https://oshpark.com) for my [Debug Port Adapter](hardware/DebugPortAdapter/) this week. A day later I soldered one of them up and now I have a much easier way to connect the [Segger J-Link Debugger](https://www.adafruit.com/product/1369) to my 3π+ 2040. As can be seen above it contains:
+* A 10-pin connector that can accept standard SWD debug cables.
+* A reset button which is easier to access than the original now under this adapter.
+* A power LED which is easier to see than the original now under this adapter.
+
+
+
+---
 ## April 12th, 2023
 ### Pololu3piPlus2040 Arduino Library Updated to 0.1.2
 Over the last week, I have released another 2 updates to the [3π+ 2040 Arduino Library](https://github.com/adamgreen/pololu-3pi-plus-2040-arduino-library). These updates include the following changes:
