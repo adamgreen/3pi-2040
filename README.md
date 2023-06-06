@@ -19,6 +19,59 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ---
+## June 6th, 2023
+### MRI-SWD Debug Probe Progress
+It's been awhile since I had anything to post here but that doesn't mean that I haven't been making progress on a 3π+ 2040 related project. I have spent the last month working on my [MRI-SWD Debug probe](https://github.com/adamgreen/mri-swd#readme). The goal is to use this probe to wirelessly program and debug the RP2040 microcontroller on the 3π+ 2040 robot.
+
+I have the initial prototype far enough along that it can perform basic programming and debugging of RP2040 microcontrollers but only in a breadboard setup. The following shows a sample run of GDB using the programming functionality of the debug probe as it currently exists:
+
+```console
+$ arm-none-eabi-gdb -ex "set target-charset ASCII" -ex "set print pretty on" -ex "set remotelogfile mri.log" -ex "target remote 10.0.0.12:2331" -ex "set mem inaccessible-by-default off" test.elf
+
+GNU gdb (Arm GNU Toolchain 12.2 (Build arm-12-mpacbti.34)) 13.1.90.20230307-git
+Copyright (C) 2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "--host=aarch64-apple-darwin20.6.0 --target=arm-none-eabi".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://bugs.linaro.org/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from build/QuadratureDecoder.elf...
+Remote debugging using 10.0.0.12:2331
+get_absolute_time () at /depots/QuadratureDecoder/pico-sdk/src/common/pico_time/include/pico/time.h:63
+63	    update_us_since_boot(&t, time_us_64());
+(gdb) load
+Loading section .boot2, size 0x100 lma 0x10000000
+Loading section .text, size 0x7130 lma 0x10000100
+Loading section .rodata, size 0x17c8 lma 0x10007230
+Loading section .binary_info, size 0x1c lma 0x100089f8
+Loading section .data, size 0x2dc lma 0x10008a14
+Start address 0x100001e8, load size 36080
+Transfer rate: 47 KB/sec, 5154 bytes/write.
+```
+
+### UART Port Adapter
+![PCB Render from OSHPark](hardware/UartPortAdapter/pcb_top.png)
+
+Now that I have the **mri-swd** probe working in a breadboard setup, I want to start down the path of designing PCBs which will allow the debug probe to be attached easily to the 3π+ 2040 robot itself. With that in mind, I have started designing a PCB that attaches to the **Mid Expansion Header** on the 3π+ 2040:
+* This PCB routes the UART0 Rx, UART0 Tx, and Ground lines from the 3π+ header to a 6-pin 0.1" header which is compatible with FTDI USB to serial converters, such as this [one from Adafruit](https://www.adafruit.com/product/284).
+* This PCB also optionally allows the 3.3V power line of the 3π+ 2040 robot to be connected to the 6-pin FTDI compatible header. Normally this connection isn't needed as the robot will be powered from its own batteries or USB:
+  * If used with an actual FTDI adapter then the 3.3V solder jumper on the PCB should be left open circuit so that both the robot and the FTDI adapter don't try to both apply power to the same pin.
+  * I also plan to use this 6-pin header for powering and mounting the final **mri-swd** debug probe hardware to the robot. When used for this scenario, the 3.3V solder jumper should be shorted so that the robot's power supply can be used to power the debug hardware as well. Having the **mri-swd** debug probe connected to this header will also allow the probe to expose the UART0 serial traffic on a second WiFi socket.
+* The design has been sent off to [OSHPark](https://oshpark.com). I will post again once the PCB arrives and I have it soldered up.
+
+![Image of schematic](hardware/UartPortAdapter/schematic.png)
+
+
+
+---
 ## April 22nd, 2023
 ![3π+ 2040 w/ new debug port adapter](images/20230421-01.jpg)
 
@@ -57,7 +110,7 @@ I received a second [3π+ 2040 Robot Kit](https://www.pololu.com/product/5004) t
 
 
 ---
-## April 6th 2023
+## April 6th, 2023
 ### Debug Port Adapter
 ![3pi+ 2040 connected to J-Link](images/20230330-03.jpg)
 
