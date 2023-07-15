@@ -1,5 +1,5 @@
 ![Pololu 3pi+ 2040 Robot](https://a.pololu-files.com/picture/0J12003.300.jpg)<br>
-My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.pololu.com/product/5004) just [released on March 7th, 2023](https://www.pololu.com/blog/937/introducing-the-3pi-plus-2040-robot).
+My experiments with [Pololu's 3pi+ 2040 robot kit](https://www.pololu.com/product/5004) that was [released on March 7th, 2023](https://www.pololu.com/blog/937/introducing-the-3pi-plus-2040-robot).
 
 
 
@@ -12,7 +12,7 @@ My explorations with [Pololu's 3pi+ 2040 early adopter robot kit](https://www.po
 
 
 ## Pololu Links
-* [*EARLY ADOPTER* 3pi+ 2040 Robot Kit with 30:1 MP Motors (Standard Edition Kit) Pololu Product Page](https://www.pololu.com/product/5004)
+* [3pi+ 2040 Robot Kit with 30:1 MP Motors (Standard Edition Kit) Pololu Product Page](https://www.pololu.com/product/5004)
 * [Pololu 3pi+ 2040 User’s Guide](https://www.pololu.com/docs/0J86)
 * [Pololu 3pi+ 2040 Robot Libraries and Example Code on GitHub](https://github.com/pololu/pololu-3pi-2040-robot)
 
