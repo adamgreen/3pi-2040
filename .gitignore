@@ -7,7 +7,7 @@
 *.kicad_prl
 fp-info-cache
 **/gerbers/
-**/shield-backups/
+**/*-backups/
 **/_autosave-*
 
 # Can ignore gcode files for 3D prints as they can be generated from .3mf/.stl
@@ -21,10 +21,3 @@ fp-info-cache
 
 # Python environment I use for things like rshell when working with this project.
 /python_env/
-
-# Temporary KiCad files.
-*.kicad_prl
-fp-info-cache
-**/gerbers/
-**/*-backups/
-**/_autosave-*
