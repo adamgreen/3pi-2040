@@ -1,6 +1,8 @@
 ![Pololu 3pi+ 2040 Robot](https://a.pololu-files.com/picture/0J12003.300.jpg)<br>
 My experiments with [Pololu's 3pi+ 2040 robot kit](https://www.pololu.com/product/5004) that was [released on March 7th, 2023](https://www.pololu.com/blog/937/introducing-the-3pi-plus-2040-robot).
 
+## Archived February 4th, 2024
+I learned a lot while working on this little bot over the last year. I gained an even better appreciation for the RP2040 microcontroller, got some great mechanical/electronic build ideas from Pololu's cool design, I got the opportunity to port an Arduino library to it, and it even kick started my [MRI-SWD Debug probe](https://github.com/adamgreen/mri-swd#readme) project that I am still actively working on. I think this is a good point to bring my work with this bot itself to an end and I am therefore marking this repository as archived. I will concentrate on other projects instead.
 
 
 ## Notable Page Sections
